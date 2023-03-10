@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Network</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="indiana.py"></script>
+<script src="socket.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+    }
+    
+    .chat-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .chat-header h1 {
+      margin: 0;
+    }
+    
+    .chat-message {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .chat-message img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    
+    .chat-message p {
+      margin: 0;
+      padding: 10px;
+      background-color: #f5f5f5;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chat-form {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+    }
+    
+    .chat-form input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chat-form button {
+      padding: 10px;
+      background-color: #4346cf;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chat-form button:hover {
+      background-color: #4346cf;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>Social Network</h1>
+
+    </div>
+    <div class="chat-messages">
+      <div id="message-list"></div>
+    </div>
+    <div class="chat-form">
+      <input type="text" id="message-input">
+      <button type="button" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <!-- Include Socket.IO library -->
+  <script src="/socket.io/socket.io.js"></script>
+  
+  <script>
+    const socket = io();
+    const messageList = document.getElementById('message-list');
+    const status = document.getElementById('status');
+
+// Send a message to the server
+function sendMessage() {
+const input = document.getElementById('message-input');
+const message = input.value;
+
+// If message is not empty, emit it to the server
+if (message.trim()) {
+socket.emit('chat message', message);
+input.value = '';
+}
+}
+
+// Receive messages from the server
+socket.on('chat message', (msg) => {
+const messageElement = document.createElement('div');
+messageElement.classList.add('chat-message');
+
+const avatarElement = document.createElement('img');
+avatarElement.src = 'https://via.placeholder.com/50x50';
+avatarElement.alt = 'User Avatar';
+
+const textElement = document.createElement('p');
+textElement.textContent = msg;
+
+messageElement.appendChild(avatarElement);
+messageElement.appendChild(textElement);
+
+messageList.appendChild(messageElement);
+});
+
+// Connection events
+socket.on('connect', () => {
+status.textContent = 'Connected';
+status.style.color = '#2ecc71';
+});
+
+socket.on('disconnect', () => {
+status.textContent = 'Disconnected';
+status.style.color = '#e74c3c';
+});
+
+socket.on('connect_error', () => {
+status.textContent = 'Connection Error';
+status.style.color = '#e74c3c';
+});
+</script>
+
+</body>
+</html>
